@@ -21,8 +21,5 @@
     "ipfs": "^0.54.1",
     "rimraf": "^3.0.2",
     "test-ipfs-example": "^3.0.0"
-  },
-  "browser": {
-    "ipfs": "ipfs/dist/index.min.js"
   }
 }
