@@ -555,7 +555,7 @@ describe('/object', () => {
       }, { ipfs })
 
       expect(res).to.have.property('statusCode', 200)
-      expect(res).to.have.property('result', emptyDirectoryNode.Data)
+      expect(res).to.have.deep.property('rawPayload', emptyDirectoryNode.Data)
     })
 
     it('accepts a timeout', async () => {
@@ -570,7 +570,7 @@ describe('/object', () => {
       }, { ipfs })
 
       expect(res).to.have.property('statusCode', 200)
-      expect(res).to.have.property('result', emptyDirectoryNode.Data)
+      expect(res).to.have.deep.property('rawPayload', emptyDirectoryNode.Data)
     })
   })
 
