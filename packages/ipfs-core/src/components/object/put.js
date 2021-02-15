@@ -1,8 +1,10 @@
 'use strict'
 
-const dagPB = require('ipld-dag-pb')
-const DAGNode = dagPB.DAGNode
-const DAGLink = dagPB.DAGLink
+const {
+  DAGNode,
+  DAGLink,
+  util: DAGLinkUtil
+} = require('ipld-dag-pb')
 const mh = require('multihashing-async').multihash
 const multicodec = require('multicodec')
 const withTimeoutOption = require('ipfs-core-utils/src/with-timeout-option')
@@ -43,7 +45,7 @@ function parseJSONBuffer (buf) {
 }
 
 function parseProtoBuffer (buf) {
-  return dagPB.util.deserialize(buf)
+  return DAGLinkUtil.deserialize(buf)
 }
 
 /**
@@ -54,8 +56,7 @@ function parseProtoBuffer (buf) {
  */
 module.exports = ({ ipld, gcLock, preload }) => {
   /**
-   *
-   * @param {Uint8Array|DAGNode|{ Data: any, links: DAGLink[]}} obj
+   * @param {Uint8Array|DAGNode|{ Data: any, Links: DAGLink[]}} obj
    * @param {PutOptions & AbortOptions} options
    * @returns {Promise<CID>}
    */
@@ -69,7 +70,7 @@ module.exports = ({ ipld, gcLock, preload }) => {
       } else {
         node = new DAGNode(obj)
       }
-    } else if (DAGNode.isDAGNode(obj)) {
+    } else if (obj instanceof DAGNode) {
       // already a dag node
       node = obj
     } else if (typeof obj === 'object') {

@@ -1,7 +1,8 @@
 'use strict'
 
-const dagPB = require('ipld-dag-pb')
-const DAGLink = dagPB.DAGLink
+const {
+  DAGLink
+} = require('ipld-dag-pb')
 const CID = require('cids')
 const withTimeoutOption = require('ipfs-core-utils/src/with-timeout-option')
 

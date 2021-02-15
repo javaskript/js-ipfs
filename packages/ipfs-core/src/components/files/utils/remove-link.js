@@ -127,7 +127,7 @@ const updateShard = async (context, positions, child, options) => {
 
   log(`Updating shard ${prefix} with name ${newName}`)
 
-  const size = DAGNode.isDAGNode(result.node) ? result.node.size : result.node.Tsize
+  const size = result.node instanceof DAGNode ? result.node.size : result.node.Tsize
 
   return updateShardParent(context, bucket, node, prefix, newName, size, result.cid, options)
 }

@@ -1,7 +1,8 @@
 'use strict'
 
-const dagPB = require('ipld-dag-pb')
-const DAGNode = dagPB.DAGNode
+const {
+  DAGNode
+} = require('ipld-dag-pb')
 const multicodec = require('multicodec')
 const Unixfs = require('ipfs-unixfs')
 const withTimeoutOption = require('ipfs-core-utils/src/with-timeout-option')

@@ -155,7 +155,7 @@ async function * objectStream (ipld, rootCid, maxDepth, uniqueOnly) { // eslint-
 async function getLinks (ipld, cid) {
   const node = await ipld.get(new CID(cid))
 
-  if (DAGNode.isDAGNode(node)) {
+  if (node instanceof DAGNode) {
     return node.Links.map(({ Name, Hash }) => ({ name: Name, cid: new CID(Hash) }))
   }
 
