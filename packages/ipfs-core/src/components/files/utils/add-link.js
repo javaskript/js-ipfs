@@ -167,6 +167,7 @@ const addFileToShardedDirectory = async (context, options) => {
     mode: node.mode
   }, {
     hamtHashFn: importerOptions.hamtHashFn,
+    hamtHashCode: importerOptions.hamtHashCode,
     hamtBucketBits: importerOptions.hamtBucketBits,
     ...options
   })

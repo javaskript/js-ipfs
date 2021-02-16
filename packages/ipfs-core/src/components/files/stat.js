@@ -146,8 +146,8 @@ const statters = {
   identity: (file) => {
     return {
       cid: file.cid,
-      size: file.node.digest.length,
-      cumulativeSize: file.node.digest.length,
+      size: file.unixfs.data.length,
+      cumulativeSize: file.unixfs.data.length,
       blocks: 0,
       type: 'file', // for go compatibility
       local: undefined,

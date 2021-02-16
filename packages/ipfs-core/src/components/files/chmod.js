@@ -210,13 +210,15 @@ module.exports = (context) => {
           dagBuilder: async function * (source, block, opts) {
             for await (const entry of source) {
               yield async function () {
-                const cid = await persist(entry.content.serialize(), block, opts)
+                const buf = entry.content.serialize()
+                const cid = await persist(buf, block, opts)
+                const unixfs = UnixFS.unmarshal(entry.content.Data)
 
                 return {
                   cid,
+                  size: buf.length,
                   path: entry.path,
-                  unixfs: UnixFS.unmarshal(entry.content.Data),
-                  node: entry.content
+                  unixfs
                 }
               }
             }

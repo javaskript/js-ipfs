@@ -46,19 +46,21 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
 }
 
 const recreateHamtLevel = async (links, rootBucket, parentBucket, positionAtParent) => {
-  const importerOptions = defaultImporterOptions()
   let bucket
 
   // recreate this level of the HAMT
   if (parentBucket) {
     bucket = new Bucket({
-      hash: parentBucket._options.hash,
-      bits: parentBucket._options.bits
+      hash: rootBucket._options.hash,
+      bits: rootBucket._options.bits
     }, parentBucket, positionAtParent)
     parentBucket._putObjectAt(positionAtParent, bucket)
   } else {
-    bucket = createHAMT({
-      hashFn: importerOptions.hamtHashFn
+    const importerOptions = defaultImporterOptions()
+
+    rootBucket = bucket = createHAMT({
+      hashFn: importerOptions.hamtHashFn,
+      bits: importerOptions.hamtBucketBits
     })
   }
 
@@ -74,14 +76,14 @@ const addLinksToHamtBucket = async (links, bucket, rootBucket) => {
         const pos = parseInt(link.Name, 16)
 
         bucket._putObjectAt(pos, new Bucket({
-          hash: bucket._options.hash,
-          bits: bucket._options.bits
+          hash: rootBucket._options.hash,
+          bits: rootBucket._options.bits
         }, bucket, pos))
 
         return Promise.resolve()
       }
 
-      return (rootBucket || bucket).put(link.Name.substring(2), {
+      return rootBucket.put(link.Name.substring(2), {
         size: link.Tsize,
         cid: link.Hash
       })
@@ -187,6 +189,8 @@ const generatePath = async (context, fileName, rootNode) => {
 }
 
 const createShard = async (context, contents, options) => {
+  const importerOptions = defaultImporterOptions()
+
   const shard = new DirSharded({
     root: true,
     dir: true,
@@ -198,6 +202,9 @@ const createShard = async (context, contents, options) => {
     mtime: options.mtime,
     mode: options.mode
   }, {
+    hamtHashFn: importerOptions.hamtHashFn,
+    hamtHashCode: importerOptions.hamtHashCode,
+    hamtBucketBits: importerOptions.hamtBucketBits,
     ...options,
     codec: 'dag-pb'
   })
@@ -209,7 +216,7 @@ const createShard = async (context, contents, options) => {
     })
   }
 
-  return last(shard.flush('', context.block, null))
+  return last(shard.flush('', context.block))
 }
 
 module.exports = {
