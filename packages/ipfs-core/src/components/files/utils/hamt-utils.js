@@ -3,8 +3,12 @@
 const {
   DAGNode
 } = require('ipld-dag-pb')
-const Bucket = require('hamt-sharding/src/bucket')
+const {
+  Bucket,
+  createHAMT
+} = require('hamt-sharding')
 const DirSharded = require('ipfs-unixfs-importer/src/dir-sharded')
+const defaultImporterOptions = require('ipfs-unixfs-importer/src/options')
 const log = require('debug')('ipfs:mfs:core:utils:hamt-utils')
 const UnixFS = require('ipfs-unixfs')
 const mc = require('multicodec')
@@ -12,6 +16,8 @@ const mh = require('multihashing-async').multihash
 const last = require('it-last')
 
 const updateHamtDirectory = async (context, links, bucket, options) => {
+  const importerOptions = defaultImporterOptions()
+
   // update parent with new bit field
   const data = Uint8Array.from(bucket._children.bitField().reverse())
   const node = UnixFS.unmarshal(options.parent.Data)
@@ -19,7 +25,7 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
     type: 'hamt-sharded-directory',
     data,
     fanout: bucket.tableSize(),
-    hashType: DirSharded.hashFn.code,
+    hashType: importerOptions.hamtHashCode,
     mode: node.mode,
     mtime: node.mtime
   })
@@ -40,14 +46,20 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
 }
 
 const recreateHamtLevel = async (links, rootBucket, parentBucket, positionAtParent) => {
-  // recreate this level of the HAMT
-  const bucket = new Bucket({
-    hashFn: DirSharded.hashFn,
-    hash: parentBucket ? parentBucket._options.hash : undefined
-  }, parentBucket, positionAtParent)
+  const importerOptions = defaultImporterOptions()
+  let bucket
 
+  // recreate this level of the HAMT
   if (parentBucket) {
+    bucket = new Bucket({
+      hash: parentBucket._options.hash,
+      bits: parentBucket._options.bits
+    }, parentBucket, positionAtParent)
     parentBucket._putObjectAt(positionAtParent, bucket)
+  } else {
+    bucket = createHAMT({
+      hashFn: importerOptions.hamtHashFn
+    })
   }
 
   await addLinksToHamtBucket(links, bucket, rootBucket)
@@ -62,7 +74,8 @@ const addLinksToHamtBucket = async (links, bucket, rootBucket) => {
         const pos = parseInt(link.Name, 16)
 
         bucket._putObjectAt(pos, new Bucket({
-          hashFn: DirSharded.hashFn
+          hash: bucket._options.hash,
+          bits: bucket._options.bits
         }, bucket, pos))
 
         return Promise.resolve()
@@ -102,6 +115,7 @@ const generatePath = async (context, fileName, rootNode) => {
       prefix: toPrefix(currentBucket._posAtParent)
     })
 
+    // @ts-ignore
     currentBucket = currentBucket._parent
   }
 

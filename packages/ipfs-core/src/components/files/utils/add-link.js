@@ -8,6 +8,7 @@ const CID = require('cids')
 const log = require('debug')('ipfs:mfs:core:utils:add-link')
 const UnixFS = require('ipfs-unixfs')
 const DirSharded = require('ipfs-unixfs-importer/src/dir-sharded')
+const defaultImporterOptions = require('ipfs-unixfs-importer/src/options')
 const {
   updateHamtDirectory,
   recreateHamtLevel,
@@ -153,6 +154,7 @@ const addFileToShardedDirectory = async (context, options) => {
   // start at the root bucket and descend, loading nodes as we go
   const rootBucket = await recreateHamtLevel(options.parent.Links)
   const node = UnixFS.unmarshal(options.parent.Data)
+  const importerOptions = defaultImporterOptions()
 
   const shard = new DirSharded({
     root: true,
@@ -163,7 +165,11 @@ const addFileToShardedDirectory = async (context, options) => {
     dirty: true,
     flat: false,
     mode: node.mode
-  }, options)
+  }, {
+    hamtHashFn: importerOptions.hamtHashFn,
+    hamtBucketBits: importerOptions.hamtBucketBits,
+    ...options
+  })
   shard._bucket = rootBucket
 
   if (node.mtime) {
