@@ -22,6 +22,7 @@ module.exports = (blockService, options = {}, log) => {
     { concatArrays: true },
     {
       blockService: blockService,
+      formats: [],
       loadFormat: (codec) => {
         log('Loading IPLD format', codec)
         if (IpldFormats[codec]) {

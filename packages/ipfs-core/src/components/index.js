@@ -248,7 +248,7 @@ const initOptions = ({ init }) =>
  * @param {IPFS} ipfs
  */
 const addEmptyDir = async (ipfs) => {
-  const node = new DAGNode(new UnixFs('directory').marshal())
+  const node = new DAGNode(new UnixFs({ type: 'directory' }).marshal())
   const cid = await ipfs.dag.put(node, {
     version: 0,
     format: multicodec.DAG_PB,

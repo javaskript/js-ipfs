@@ -23,7 +23,7 @@ module.exports = ({ ipld, preload }) => {
 
     if (options.template) {
       if (options.template === 'unixfs-dir') {
-        data = (new Unixfs('directory')).marshal()
+        data = (new Unixfs({ type: 'directory' })).marshal()
       } else {
         throw new Error('unknown template')
       }

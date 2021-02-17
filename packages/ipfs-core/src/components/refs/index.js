@@ -156,7 +156,7 @@ async function getLinks (ipld, cid) {
   const node = await ipld.get(new CID(cid))
 
   if (node instanceof DAGNode) {
-    return node.Links.map(({ Name, Hash }) => ({ name: Name, cid: new CID(Hash) }))
+    return node.Links.map(({ Name, Hash }) => ({ name: Name, cid: Hash }))
   }
 
   return getNodeLinks(node)
